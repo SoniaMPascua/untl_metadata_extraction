@@ -1,6 +1,18 @@
 import sys
 from xml.etree import ElementTree as ET
 
+"""
+Written to extract metadata from the UNTETD Collection in the UNT Digital
+Library at http://digital.library.unt.edu/explore/collections/UNTETD/
+
+Script was designed to work on the output of the pyoaiharvester.py OAI-PMH
+Harvester witht he UNTL metadata format.
+
+python pyoaiharvester.py -i http://digital.library.unt.edu/explore/collections/UNTETD/oai/
+-o untetd.untl.xml -m untl
+
+"""
+
 UNTL_NS = "{http://digital2.library.unt.edu/untl/}"
 
 class Record:

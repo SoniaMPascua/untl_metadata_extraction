@@ -104,11 +104,12 @@ for event, elem in ET.iterparse(sys.argv[1]):
         rec_list = []
         record = Record(elem)
         year = record.get_creation_year()
+        #Extract decade from year
         decade = (int(year)//10) * 10
 
         rec_list.append(record.get_ark())
         rec_list.append(record.get_partner())
-        rec_list.append(record.get_availability().split("-")[0])
+        rec_list.append(record.get_availability().split("-")[0]) #only year
         rec_list.append(year)
         rec_list.append(str(decade))
         rec_list.append(record.get_county())

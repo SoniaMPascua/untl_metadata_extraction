@@ -72,12 +72,13 @@ class Record:
         """Get coverage with qualifier placeName"""
         institutions = elem[1][0].findall(UNTL_NS + "institution")
         for institution in institutions:
-            return institution.text
+            return institution.text.strip()
 
     def get_county(self):
         place = self.get_place_name()
         if place.startswith("United States"):
             place_parts = place.split(" - ")
+            #United States - Texas - Denton County - Denton
             #county should be the 3rd value position 2
             return place_parts[2]
         else:
@@ -87,7 +88,8 @@ class Record:
         place = self.get_place_name()
         if place.startswith("United States"):
             place_parts = place.split(" - ")
-            #community should be the 3rd value position 2
+            #United States - Texas - Denton County - Denton
+            #community should be the 3rd value position 3
             return place_parts[3]
         else:
             return ""
@@ -96,9 +98,6 @@ if len(sys.argv) != 2:
     print "usage: python extract_metadata.py <untl metadata file>"
     exit(-1)
 
-#header = ["id", "date_online", "year",
-#            "place", "serial_title"]
-#print "\t".join(header)
 
 for event, elem in ET.iterparse(sys.argv[1]):
     if elem.tag == "record":

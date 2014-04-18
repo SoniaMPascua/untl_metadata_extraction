@@ -67,40 +67,43 @@ metadata_fields = ["title", "creator", "contributor", "publisher", "date",
 header = True
 
 for filename in sys.stdin:
-    rd = {}
-    untl = untlxml2py(filename.strip())
-    rd["completeness"] = untl.completeness
-    rd["record_length"] = untl.record_length
-    rd["record_content_length"] = untl.record_content_length
+    try:
+        rd = {}
+        untl = untlxml2py(filename.strip())
+        rd["completeness"] = untl.completeness
+        rd["record_length"] = untl.record_length
+        rd["record_content_length"] = untl.record_content_length
 
-    untl_dict = untlpy2dict(untl)
-    for field in metadata_fields:
-        rd[field] = len(untl_dict.get(field, []))
-        hash_name = "%s_hash" % field
-        rd[hash_name] = hashlib.md5(str(untl_dict.get(field, []))).hexdigest()
+        untl_dict = untlpy2dict(untl)
+        for field in metadata_fields:
+            rd[field] = len(untl_dict.get(field, []))
+            hash_name = "%s_hash" % field
+            rd[hash_name] = hashlib.md5(str(untl_dict.get(field, []))).hexdigest()
 
-    rd["hidden"] = get_is_hidden(untl_dict)
-    rd["metadata_creator"] = get_metadata_creator(untl_dict)
-    rd["metadata_editor"] = get_metadata_editor(untl_dict)
-    rd["metadata_creation_date"] = get_metadata_creation_date(untl_dict)
-    rd["metadata_edit_date"] = get_metadata_edit_date(untl_dict)
-    rd["ark"] = get_ark(untl_dict)
+        rd["hidden"] = get_is_hidden(untl_dict)
+        rd["metadata_creator"] = get_metadata_creator(untl_dict)
+        rd["metadata_editor"] = get_metadata_editor(untl_dict)
+        rd["metadata_creation_date"] = get_metadata_creation_date(untl_dict)
+        rd["metadata_edit_date"] = get_metadata_edit_date(untl_dict)
+        rd["ark"] = get_ark(untl_dict)
 
-    if rd["metadata_creation_date"] != "None":
-        creation_time = datetime.strptime(rd["metadata_creation_date"],
+        if rd["metadata_creation_date"] != "None":
+            creation_time = datetime.strptime(rd["metadata_creation_date"],
+                                              "%Y-%m-%d, %H:%M:%S")
+
+        if rd["metadata_edit_date"] != "None":
+            #2014-03-12, 11:42:25
+            edit_time = datetime.strptime(rd["metadata_edit_date"],
                                           "%Y-%m-%d, %H:%M:%S")
+            rd["time_since_creation"] = int((edit_time - creation_time).total_seconds())
+            rd["0_sample_id"] = "%s_%s" % (rd["ark"], edit_time.isoformat())
+        else:
+            rd["time_since_creation"] = 0
+            rd["0_sample_id"] = "%s_%s" % (rd["ark"], creation_time.isoformat())
 
-    if rd["metadata_edit_date"] != "None":
-        #2014-03-12, 11:42:25
-        edit_time = datetime.strptime(rd["metadata_edit_date"],
-                                      "%Y-%m-%d, %H:%M:%S")
-        rd["time_since_creation"] = int((edit_time - creation_time).total_seconds())
-        rd["0_sample_id"] = "%s_%s" % (rd["ark"], edit_time.isoformat())
-    else:
-        rd["time_since_creation"] = 0
-        rd["0_sample_id"] = "%s_%s" % (rd["ark"], creation_time.isoformat())
-
-    if header is True:
-        print "\t".join([k for k in sorted(rd)])
-        header = False
-    print "\t".join([str(rd[k]) for k in sorted(rd)])
+        if header is True:
+            print "\t".join([k for k in sorted(rd)])
+            header = False
+        print "\t".join([str(rd[k]) for k in sorted(rd)])
+    except:
+        pass
